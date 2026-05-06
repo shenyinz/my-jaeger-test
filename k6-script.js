@@ -1,6 +1,16 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 
+// Helper function to generate a random hex string for Tracing IDs
+function randomHex(length) {
+  let result = '';
+  const characters = '0123456789abcdef';
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+}
+
 // Performance test configuration
 export const options = {
   stages: [
@@ -16,8 +26,17 @@ export const options = {
 };
 
 export default function () {
-  // Request the app-service we defined in docker-compose
-  const res = http.get('http://app-service:8000/');
+  // Generate a W3C traceparent header (00-traceId-spanId-01)
+  const traceId = randomHex(32);
+  const spanId = randomHex(16);
+  const params = {
+    headers: {
+      'traceparent': `00-${traceId}-${spanId}-01`,
+    },
+  };
+
+  // Request the app-service with Tracing headers injected
+  const res = http.get('http://app-service:8000/', params);
 
   check(res, {
     'status is 200': (r) => r.status === 200,

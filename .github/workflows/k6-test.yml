@@ -1,0 +1,32 @@
+name: K6 Performance Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  k6_test:
+    name: Run K6 Load Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Start Services and Run K6
+        run: |
+          docker compose up -d app-service prometheus
+          # Wait for services to start
+          sleep 10
+          # Run k6 via docker compose to ensure network connectivity
+          docker compose --profile test run k6
+
+

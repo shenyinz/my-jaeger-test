@@ -1,0 +1,18 @@
+{
+	"ulid": "01KPSDG423JARAARS1BR55707F",
+	"minTime": 1776811192105,
+	"maxTime": 1776816000000,
+	"stats": {
+		"numSamples": 142568,
+		"numFloatSamples": 142568,
+		"numSeries": 1739,
+		"numChunks": 1739
+	},
+	"compaction": {
+		"level": 1,
+		"sources": [
+			"01KPSDG423JARAARS1BR55707F"
+		]
+	},
+	"version": 1
+}

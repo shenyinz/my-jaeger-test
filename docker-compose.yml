@@ -1,0 +1,114 @@
+services:
+  # 1. Jaeger: Distributed Tracing
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    environment:
+      - SPAN_STORAGE_TYPE=badger # Use Badger file storage instead of memory storage
+      - BADGER_DIRECTORY_KEY=/tmp/jaeger/data/keys
+      - BADGER_DIRECTORY_VALUE=/tmp/jaeger/data/values
+      - BADGER_EPHEMERAL=false   # Disable ephemeral mode to ensure writes to disk
+    volumes:
+      - ./jaeger_data:/badger    # Save Trace data locally
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+    restart: unless-stopped
+
+  # 2. Simulated Backend Service (Python)
+  app-service:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_SERVICE_NAME=order-service
+    depends_on:
+      - jaeger
+    restart: unless-stopped
+
+  # 3. Prometheus: Monitoring Database
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus_data:/prometheus # Key: Persist monitoring metrics data
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d' # Keep data for 15 days to prevent disk overflow
+      - '--enable-feature=exemplars-storage'
+      - '--web.enable-remote-write-receiver' # Allow K6 to write data
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # Allow container to access JMeter monitoring port on host
+
+  # 4. Grafana: Visualization Dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana_data:/var/lib/grafana # Key: Persist dashboards, data sources, and login info
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  # 5. Node Exporter: Hardware Monitoring (No persistence needed, it collects in real-time)
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9100:9100"
+    restart: unless-stopped
+
+
+  postgres-db:
+    image: postgres:17
+    container_name: my_postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: dev_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d dev_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 6. K6 Performance Testing
+  k6:
+    image: grafana/k6:latest
+    container_name: k6
+    volumes:
+      - ./k6-script.js:/scripts/k6-script.js
+    environment:
+      - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
+      - K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true
+    command: run -o experimental-prometheus-rw /scripts/k6-script.js
+    depends_on:
+      - app-service
+      - prometheus
+    profiles:
+      - test
+
+volumes:
+  pgdata:

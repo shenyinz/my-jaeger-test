@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+opentelemetry-api
+opentelemetry-sdk
+opentelemetry-instrumentation-fastapi
+opentelemetry-exporter-otlp
+prometheus-fastapi-instrumentator>=7.1.0

@@ -94,16 +94,33 @@ services:
       timeout: 5s
       retries: 5
 
-  # 6. K6 Performance Testing
-  k6:
+  # 6. K6 Performance Testing - API
+  k6-api:
     image: grafana/k6:latest
-    container_name: k6
+    container_name: k6-api
     volumes:
       - ./k6-script.js:/scripts/k6-script.js
     environment:
       - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
       - K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true
     command: run -o experimental-prometheus-rw /scripts/k6-script.js
+    depends_on:
+      - app-service
+      - prometheus
+    profiles:
+      - test
+
+  # 7. K6 Performance Testing - Browser
+  k6-browser:
+    image: grafana/k6:latest-with-browser
+    container_name: k6-browser
+    volumes:
+      - ./k6-browser-script.js:/scripts/k6-browser-script.js
+    environment:
+      - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
+      - K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true
+      - K6_BROWSER_ENABLED=true
+    command: run -o experimental-prometheus-rw /scripts/k6-browser-script.js
     depends_on:
       - app-service
       - prometheus

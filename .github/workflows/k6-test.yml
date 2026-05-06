@@ -30,6 +30,7 @@ jobs:
           # Wait for services to start
           sleep 10
           # Run k6 via docker compose to ensure network connectivity
-          docker compose --profile test run k6
+          docker compose --profile test run k6-api
+          docker compose --profile test run k6-browser
 
 

@@ -1,0 +1,18 @@
+{
+	"ulid": "01KQY88668TVCN42YPRRX4QS41",
+	"minTime": 1778047202316,
+	"maxTime": 1778054400000,
+	"stats": {
+		"numSamples": 873302,
+		"numFloatSamples": 873302,
+		"numSeries": 1793,
+		"numChunks": 7146
+	},
+	"compaction": {
+		"level": 1,
+		"sources": [
+			"01KQY88668TVCN42YPRRX4QS41"
+		]
+	},
+	"version": 1
+}

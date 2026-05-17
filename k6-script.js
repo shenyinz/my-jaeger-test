@@ -14,8 +14,8 @@ function randomHex(length) {
 // Performance test configuration
 export const options = {
   stages: [
-    { duration: '30s', target: 20 }, // Gradually increase to 20 virtual users over 30 seconds
-    { duration: '30s', target: 20 },  // Keep 20 concurrent users running for 30 seconds
+    { duration: '30s', target: 10 }, // Gradually increase to 20 virtual users over 30 seconds
+    { duration: '30s', target: 10 },  // Keep 20 concurrent users running for 30 seconds
     { duration: '10s', target: 0 },  // Gradually decrease to 0 virtual users over 10 seconds
   ],
   thresholds: {

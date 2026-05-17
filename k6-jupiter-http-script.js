@@ -5,7 +5,7 @@ import { check, sleep } from 'k6';
 export const options = {
   stages: [
     { duration: '30s', target: 20 }, // Ramp up to 20 users
-    { duration: '1m', target: 20 },  // Stay at 20 users for 1 min
+    { duration: '30s', target: 20 },  // Stay at 20 users for 1 min
     { duration: '10s', target: 0 },  // Ramp down to 0 users
   ],
   thresholds: {
@@ -30,7 +30,7 @@ export default function () {
     username: 'test',
     password: 'letmein'
   });
-  
+
   const loginHeaders = {
     headers: {
       'Content-Type': 'application/json',
@@ -39,7 +39,7 @@ export default function () {
   };
 
   res = http.post(`${BASE_URL}/api/login`, loginPayload, loginHeaders);
-  
+
   // Note: Jupiter toys might not actually have an /api/login endpoint as it's purely client-side mock for some parts.
   // But this is exactly how you structure it for a real application!
   check(res, {

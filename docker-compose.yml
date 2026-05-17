@@ -99,7 +99,7 @@ services:
     image: grafana/k6:latest
     container_name: k6-api
     volumes:
-      - ./k6-script.js:/scripts/k6-script.js
+      - ./:/scripts/
     environment:
       - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
       - K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true
@@ -115,7 +115,7 @@ services:
     image: grafana/k6:latest-with-browser
     container_name: k6-browser
     volumes:
-      - ./k6-browser-script.js:/scripts/k6-browser-script.js
+      - ./:/scripts/
     environment:
       - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
       - K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true

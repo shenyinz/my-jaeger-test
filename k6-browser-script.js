@@ -7,7 +7,7 @@ export const options = {
       executor: 'shared-iterations',
       vus: 2,           // Number of concurrent browsers (Keep this low to save memory!)
       iterations: 4,    // Total number of iterations to run across all VUs
-      maxDuration: '1m',
+      maxDuration: '30s',
       options: {
         browser: {
           type: 'chromium',
@@ -26,7 +26,7 @@ export default async function () {
   try {
     // 1. Open the homepage
     await page.goto('https://jupiter.cloud.planittesting.com/#/home');
-    
+
     // Wait for the page to load completely
     await page.waitForSelector('.btn-success'); // Wait for "Start Shopping" button to ensure page loaded
 
@@ -48,13 +48,13 @@ export default async function () {
 
     // 4. Click "start shopping" button on the homepage
     await page.locator('.btn-success').click();
-    
+
     // Wait for the shop page to load
     await page.waitForSelector('.products'); // Wait for products to load
 
     // 5. Click Logout
     await page.locator('//a[contains(., "Logout")]').click();
-    
+
     // Verify logout
     const loginVisible = await page.locator('//a[contains(., "Login")]').isVisible();
     check(loginVisible, { 'Logged out successfully': true });

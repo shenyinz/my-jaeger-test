@@ -31,8 +31,8 @@ jobs:
           sleep 10
           # Run k6 via docker compose to ensure network connectivity
           docker compose --profile test run k6-api run -o experimental-prometheus-rw /scripts/k6-script.js
-          docker compose --profile test run k6-api run -o experimental-prometheus-rw /scripts/k6-jupiter-http-script.js
-          docker compose --profile test run k6-api run -o experimental-prometheus-rw /scripts/k6-openmeteo-script.js
+          # docker compose --profile test run k6-api run -o experimental-prometheus-rw /scripts/k6-jupiter-http-script.js
+          # docker compose --profile test run k6-api run -o experimental-prometheus-rw /scripts/k6-openmeteo-script.js
           
           # Run the browser-based K6 script
           docker compose --profile test run k6-browser

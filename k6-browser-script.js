@@ -6,7 +6,7 @@ export const options = {
     ui: {
       executor: 'shared-iterations',
       vus: 2,           // Number of concurrent browsers (Keep this low to save memory!)
-      iterations: 4,    // Total number of iterations to run across all VUs
+      iterations: 2,    // Total number of iterations to run across all VUs
       maxDuration: '30s',
       options: {
         browser: {

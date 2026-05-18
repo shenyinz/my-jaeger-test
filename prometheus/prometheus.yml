@@ -1,19 +1,19 @@
 global:
-  scrape_interval: 15s # 每 15 秒抓取一次数据 ⏱
+  scrape_interval: 15s # Scrape data every 15 seconds ⏱
 
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:9090'] # 监控 Prometheus 自身
+      - targets: ['localhost:9090'] # Monitor Prometheus itself
 
   - job_name: 'python-app'
     static_configs:
-      - targets: ['app-service:8000'] # 监控我们的后端应用 
+      - targets: ['app-service:8000'] # Monitor our backend application 
 
   - job_name: 'node-exporter'
     static_configs:
-      - targets: ['node-exporter:9100'] # 监控 Node Exporter 提供的系统指标
+      - targets: ['node-exporter:9100'] # Monitor system metrics provided by Node Exporter
 
   - job_name: 'jmeter'
     static_configs:
-      - targets: ['172.27.240.1:9270']  # 使用这个特殊域名访问 Windows 宿主机上的 JMeter 监控端口
+      - targets: ['172.27.240.1:9270']  # Monitor the JMeter metrics port on the host machine

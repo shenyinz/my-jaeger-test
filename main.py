@@ -9,7 +9,7 @@ from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExport
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from prometheus_fastapi_instrumentator import Instrumentator
 
-# --- 0. 核心调试输出 (容器启动时会立即打印在 logs 里) ---
+# --- 0. Core debug output (Printed immediately in logs when container starts) ---
 import prometheus_fastapi_instrumentator
 print("\n" + "="*50)
 print(f"🔎 DEBUG: Python Executable: {sys.executable}")
@@ -18,7 +18,7 @@ print(f"🔎 DEBUG: Library Version: {prometheus_fastapi_instrumentator.__versio
 print(f"🔎 DEBUG: Library File Location: {prometheus_fastapi_instrumentator.__file__}")
 print("="*50 + "\n")
 
-# --- 1. 配置 OpenTelemetry ---
+# --- 1. Configure OpenTelemetry ---
 OTLP_ENDPOINT = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://jaeger:4318/v1/traces")
 
 provider = TracerProvider()
@@ -29,7 +29,7 @@ tracer = trace.get_tracer(__name__)
 
 app = FastAPI(title="Performance-Test-API")
 
-# --- 2. 定义 Trace ID 注入函数 ---
+# --- 2. Define Trace ID injection function ---
 def trace_integration(expose_exemplars: bool = True):
     def instrumentation(info):
         if expose_exemplars:
@@ -40,23 +40,23 @@ def trace_integration(expose_exemplars: bool = True):
         return {}
     return instrumentation
 
-# --- 3. 初始化监控 (暂不传参数，确保服务能启动) ---
-# 💡 这里的括号里现在是空的，避免触发 TypeError 导致容器重启
+# --- 3. Initialize monitoring (No parameters for now, ensuring service starts) ---
+# 💡 The parentheses are empty here to avoid triggering TypeError and container restarts
 instrumentator = Instrumentator()
 
-# 尝试手动检测是否支持该参数 (用于进一步调试)
+# Attempt to manually detect if the parameter is supported (for further debugging)
 if hasattr(instrumentator, "label_formatter"):
     print("✅ System Check: This version supports 'label_formatter'")
 else:
     print("❌ System Check: This version DOES NOT support 'label_formatter'")
 
-# 执行基本的注入
+# Execute basic injection
 instrumentator.instrument(app).expose(app)
 
-# 注入 FastAPI 追踪
+# Inject FastAPI tracing
 FastAPIInstrumentor.instrument_app(app)
 
-# --- 4. 业务接口 ---
+# --- 4. Business endpoints ---
 @app.post("/process-order")
 async def process_order(request: Request):
     current_span = trace.get_current_span()
